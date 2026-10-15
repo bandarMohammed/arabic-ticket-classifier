@@ -8,6 +8,8 @@ SDAIA Academy on GitHub: https://github.com/SDAIAAcademy
 
 Course page: https://sdaiaacademy.github.io/applied-nlp/
 
+capstone_presentation : https://magical-cassata-90d405.netlify.app
+
 ## Problem
 A support team receives customer messages in English, Modern Standard Arabic and Gulf dialect, and needs each one routed to the right queue. The course baseline works well on English but **fails on Arabic**: trained on English only, its confidence collapses on Arabic text and it abstains on most tickets.
 
