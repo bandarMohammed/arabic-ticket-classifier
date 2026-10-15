@@ -89,7 +89,7 @@
   <div class="grid">
     <section class="card">
       <label class="h" for="msg">Customer message · رسالة العميل</label>
-      <textarea id="msg" dir="auto" placeholder="وين طلبي؟ صار له أسبوع"></textarea>
+      <textarea id="msg" dir="auto" placeholder="متى يوصل طلبي؟ ابي رقم التتبع"></textarea>
       <div class="row">
         <button class="primary" id="go" disabled>Classify · صنّف</button>
         <span class="status" id="status">Loading model…</span>
@@ -147,12 +147,12 @@ function priority(intent, text) {
 }
 
 const EXAMPLES = [
-  "وين طلبي؟ صار له أسبوع",
-  "انخصم المبلغ مرتين من بطاقتي عاجل!!",
-  "ابي اكلم موظف الحين لو سمحت",
-  "أرغب في حذف حسابي نهائياً",
+  "متى يوصل طلبي؟ ابي رقم التتبع",
+  "تجربة سيئة مرة، المنتج وصل مكسور وما احد رد علي",
+  "حولني على أحد من الموظفين",
+  "احذفوا حسابي لو سمحتوا ما عاد ابيه",
+  "فشلت عملية الدفع عدة مرات، ما المشكلة؟",
   "I was charged twice for order A-55821, fix it now!",
-  "How long does delivery to Jeddah take?",
   "اقدر ادفع بأبل باي؟",
 ];
 
