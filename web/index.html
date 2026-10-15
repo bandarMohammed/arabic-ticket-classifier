@@ -118,7 +118,9 @@
 import { pipeline, env } from "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.2";
 env.allowLocalModels = false;
 // fp32 = same weights as the evaluated Python model; add ?dtype=q8 to the URL for a smaller (~120 MB) but less exact encoder
-const DTYPE = new URLSearchParams(location.search).get("dtype") || "fp32";
+const QS = new URLSearchParams(location.search);
+const DTYPE = QS.get("dtype") || "fp32";
+const DEBUG = QS.has("debug");
 
 const REPO_URL = "https://github.com/bandarMohammed/arabic-ticket-classifier";
 if (REPO_URL) document.getElementById("repoLink").innerHTML = ` · <a href="${REPO_URL}" target="_blank" rel="noopener">Code & results on GitHub</a>`;
@@ -201,7 +203,7 @@ async function run() {
   const z = model.coef.map((w, k) => w.reduce((acc, wi, i) => acc + wi * x[i], model.intercept[k]));
   const p = softmax(z);
   const order = p.map((v, i) => [v, i]).sort((a, b) => b[0] - a[0]);
-  last = { text, order, ms: Math.round(performance.now() - t0) };
+  last = { text, order, x, z, ms: Math.round(performance.now() - t0) };
   render(last);
   go.disabled = false; status.textContent = "Ready · جاهز";
 }
@@ -227,7 +229,8 @@ function render({ text, order, ms }) {
       <div><small>Priority</small><span class="pri-${pri}">${pri}</span></div>
       <div><small>Language</small><span>${lang}</span></div>
     </div>
-    <p class="status" style="margin:12px 0 0">“<span dir="auto">${esc(text)}</span>” · ${ms} ms</p>`;
+    <p class="status" style="margin:12px 0 0">“<span dir="auto">${esc(text)}</span>” · ${ms} ms</p>
+    ${DEBUG ? `<pre class="status" style="white-space:pre-wrap;margin:8px 0 0">dims=${last.x.length}  first5=[${Array.from(last.x.slice(0,5)).map(v=>v.toFixed(4)).join(", ")}]\ntop logit=${last.z[idx].toFixed(3)}  dtype=${DTYPE}</pre>` : ""}`;
 }
 
 go.onclick = run;
