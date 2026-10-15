@@ -1,0 +1,163 @@
+text,intent,dialect,kept_after_leakage_check
+أود إلغاء طلبي الذي قمت به أمس,cancel_order,msa,True
+هل بالإمكان إيقاف الطلب وإلغاؤه قبل التجهيز؟,cancel_order,msa,True
+لا أحتاج الطلب بعد الآن، ألغوه من فضلكم,cancel_order,msa,True
+كنسلوا الطلب الله يعافيكم ما عاد احتاجه,cancel_order,gulf,True
+بغيت الغي الطلبية اللي طلبتها اليوم,cancel_order,gulf,True
+تكفون الغوا طلبي غيرت رايي,cancel_order,gulf,True
+أحتاج إلى تغيير أحد المنتجات في طلبي,change_order,msa,True
+هل يمكن استبدال المنتج في الطلب بلون آخر قبل الشحن؟,change_order,msa,True
+أريد حذف منتج من الطلب الذي لم يُشحن بعد,change_order,gulf,True
+ابي ازيد حبة ثانية على نفس الطلب,change_order,gulf,True
+طلبت مقاس كبير وابيه وسط عدلوه لي,change_order,gulf,True
+أرغب في تعديل محتويات طلبي الحالي,change_order,msa,False
+عنوان الشحن في طلبي خاطئ وأريد تصحيحه,change_shipping_address,msa,True
+هل يمكن توجيه الشحنة إلى مدينة أخرى؟,change_shipping_address,msa,True
+أرجو تحديث عنوان التسليم للطلب قبل خروجه,change_shipping_address,msa,False
+ابي الطلب يروح لبيت اهلي بدل بيتي,change_shipping_address,gulf,True
+حطيت العنوان غلط عدلوه لي الله يخليكم,change_shipping_address,gulf,True
+غيروا عنوان الطلب للرياض بدال جدة,change_shipping_address,gulf,True
+هل سيتم خصم مبلغ إذا ألغيت الطلب الآن؟,check_cancellation_fee,msa,True
+ما هي تكلفة إلغاء الحجز بعد تأكيده؟,check_cancellation_fee,msa,True
+أريد معرفة الرسوم المترتبة على الإلغاء,check_cancellation_fee,msa,True
+لو الغيت الطلب كم بيخصمون مني؟,check_cancellation_fee,gulf,True
+الالغاء ببلاش ولا عليه رسوم؟,check_cancellation_fee,gulf,True
+فيه رسوم لو كنسلت بعد ما يطلع الطلب؟,check_cancellation_fee,gulf,True
+أرغب في الاطلاع على تفاصيل فاتورتي,check_invoice,msa,True
+يوجد خطأ في مبلغ الفاتورة وأريد التحقق منه,check_invoice,msa,True
+لماذا قيمة الفاتورة أعلى من سعر المنتج؟,check_invoice,msa,True
+الفاتورة طالعة غلط ابي اراجعها,check_invoice,gulf,True
+وش هالمبلغ الزايد اللي في الفاتورة؟,check_invoice,gulf,True
+ابي اتأكد من الفاتورة قبل ادفع,check_invoice,gulf,True
+هل تقبلون الدفع بالبطاقة الائتمانية؟,check_payment_methods,msa,True
+أريد معرفة وسائل الدفع المتوفرة,check_payment_methods,msa,True
+هل يمكن الدفع بالتقسيط عن طريق تابي؟,check_payment_methods,msa,True
+وش طرق الدفع اللي عندكم؟,check_payment_methods,gulf,True
+ينفع ادفع كاش لما يوصلني الطلب؟,check_payment_methods,gulf,True
+تقبلون STC Pay؟,check_payment_methods,gulf,True
+ما شروط إرجاع المنتجات لديكم؟,check_refund_policy,msa,True
+هل يمكن إرجاع المنتج بعد فتح العبوة؟,check_refund_policy,msa,True
+كم مدة الاسترجاع المسموح بها؟,check_refund_policy,msa,True
+وش سياستكم في الترجيع؟,check_refund_policy,gulf,True
+اقدر ارجع شي اشتريته من شهر؟,check_refund_policy,gulf,True
+المنتجات اللي عليها خصم ترجع ولا لا؟,check_refund_policy,gulf,True
+أنا غير راضٍ عن مستوى الخدمة إطلاقاً,complaint,msa,True
+أود الإبلاغ عن سوء تعامل من مندوب التوصيل,complaint,msa,True
+تأخر طلبي كثيراً ولم يتواصل معي أحد,complaint,msa,True
+خدمتكم تعبانة مرة وما احد يرد,complaint,gulf,True
+المندوب كان قليل ادب معي ابي اشتكي,complaint,gulf,True
+زهقت منكم كل مرة نفس المشكلة,complaint,gulf,True
+ما هو رقم التواصل مع خدمة العملاء؟,contact_customer_service,msa,True
+أحتاج إلى التواصل مع فريق الدعم,contact_customer_service,msa,True
+هل يوجد بريد إلكتروني لخدمة العملاء؟,contact_customer_service,msa,True
+كيف اكلم الدعم عندكم؟,contact_customer_service,gulf,True
+عطوني ايميل خدمة العملاء,contact_customer_service,gulf,True
+وش رقم الواتساب حقكم؟,contact_customer_service,gulf,True
+أريد محادثة شخص من الدعم وليس الرد الآلي,contact_human_agent,msa,True
+من فضلك حوّلني إلى موظف خدمة العملاء,contact_human_agent,msa,True
+لا أريد التحدث مع البوت، أريد إنساناً,contact_human_agent,msa,True
+ابي موظف يكلمني مو آلة,contact_human_agent,gulf,True
+وصلني بأحد من الدعم الله يعافيك,contact_human_agent,gulf,True
+ما ابي البوت ابي اكلم شخص,contact_human_agent,gulf,True
+كيف يمكنني التسجيل كعميل جديد؟,create_account,msa,True
+أود فتح حساب في متجركم,create_account,msa,True
+ما المطلوب لإنشاء حساب؟,create_account,msa,True
+ابي اسجل عندكم كيف؟,create_account,gulf,True
+ودي اسوي حساب جديد برقم جوالي,create_account,gulf,True
+كيف افتح لي حساب في التطبيق؟,create_account,gulf,True
+أريد إلغاء حسابي وحذف بياناتي,delete_account,msa,False
+كيف يمكنني إزالة حسابي بشكل دائم؟,delete_account,msa,True
+أرغب في إيقاف حسابي نهائياً,delete_account,msa,False
+ابي اقفل حسابي للأبد,delete_account,gulf,True
+شيلوا حسابي ما عاد استخدمه,delete_account,gulf,True
+كيف امسح الحساب من التطبيق؟,delete_account,gulf,True
+هل تتوفر خدمة التوصيل للمنازل في القرى؟,delivery_options,msa,True
+ما أنواع الشحن التي تقدمونها؟,delivery_options,msa,True
+هل يمكن اختيار موعد محدد للتوصيل؟,delivery_options,msa,True
+عندكم شحن سريع؟,delivery_options,gulf,True
+توصلون لأبها ولا لا؟,delivery_options,gulf,True
+اقدر اختار التوصيل بالليل؟,delivery_options,gulf,True
+ما المدة المتوقعة لوصول الشحنة؟,delivery_period,msa,True
+كم يوماً يستغرق التوصيل إلى الرياض؟,delivery_period,msa,True
+متى سيصل الطلب إذا طلبته الآن؟,delivery_period,msa,True
+كم ياخذ التوصيل لمكة؟,delivery_period,gulf,True
+الشحن ياخذ كم يوم بالعادة؟,delivery_period,gulf,True
+اذا طلبت الحين متى يجيني؟,delivery_period,gulf,True
+أريد تغيير البريد الإلكتروني المسجل,edit_account,msa,True
+كيف أعدّل العنوان في ملفي الشخصي؟,edit_account,msa,True
+أرغب في تحديث كلمة المرور ورقم الهاتف,edit_account,msa,True
+ابي احدث بياناتي في الحساب,edit_account,gulf,False
+كيف اغير رقمي المسجل عندكم؟,edit_account,gulf,True
+ودي اعدل تاريخ ميلادي في الحساب,edit_account,gulf,False
+أرجو إرسال الفاتورة إلى بريدي الإلكتروني,get_invoice,msa,True
+أحتاج فاتورة ضريبية لعملية الشراء,get_invoice,msa,True
+من أين أستطيع تحميل الفاتورة؟,get_invoice,msa,True
+ابي فاتورة الطلب عشان الشركة,get_invoice,gulf,True
+وين القى الفاتورة حقت طلبي؟,get_invoice,gulf,True
+طلعوا لي فاتورة لو سمحتوا,get_invoice,gulf,True
+أطلب استرجاع قيمة المنتج المعيب,get_refund,msa,True
+وصلني منتج مختلف وأريد استرداد أموالي,get_refund,msa,True
+أرغب في إعادة المبلغ إلى بطاقتي,get_refund,msa,True
+ابي استرجع فلوسي المنتج خربان,get_refund,gulf,True
+رجعوا لي المبلغ المنتج مو نفس الصورة,get_refund,gulf,True
+كيف اسوي طلب استرجاع فلوس؟,get_refund,gulf,True
+أريد التسجيل في القائمة البريدية للعروض,newsletter_subscription,msa,True
+كيف ألغي الاشتراك في الرسائل التسويقية؟,newsletter_subscription,msa,True
+أرغب في استقبال آخر العروض على بريدي,newsletter_subscription,msa,True
+وقفوا الايميلات اللي تجيني كل يوم,newsletter_subscription,gulf,True
+ابي اشترك عشان يوصلني جديدكم,newsletter_subscription,gulf,True
+كيف اطفي رسايل العروض؟,newsletter_subscription,gulf,True
+تم رفض بطاقتي أثناء الدفع,payment_issue,msa,True
+خُصم المبلغ ولم يتم تأكيد الطلب,payment_issue,msa,True
+توجد مشكلة في إتمام عملية الدفع,payment_issue,msa,True
+البطاقة ما تمشي عندكم ليش؟,payment_issue,gulf,True
+دفعت والطلب ما انعمل والفلوس راحت,payment_issue,gulf,True
+الدفع يطلع لي خطأ كل مرة,payment_issue,gulf,True
+أرغب في شراء منتج من متجركم,place_order,msa,True
+ما هي خطوات إتمام الطلب؟,place_order,msa,True
+أريد طلب عدة منتجات دفعة واحدة,place_order,msa,True
+ابي اطلب من عندكم ساعدوني,place_order,gulf,True
+كيف اسوي طلب من التطبيق؟,place_order,gulf,True
+ودي اشتري لابتوب وش اسوي؟,place_order,gulf,True
+لا أتذكر كلمة السر الخاصة بحسابي,recover_password,msa,True
+أحتاج إلى استعادة كلمة المرور,recover_password,msa,True
+لا أستطيع تسجيل الدخول بسبب كلمة المرور,recover_password,msa,False
+الرقم السري نسيته وش اسوي؟,recover_password,gulf,True
+ابي اغير الباسورد لاني ناسيه,recover_password,gulf,True
+ما اقدر ادخل حسابي نسيت الرمز,recover_password,gulf,True
+تظهر لي مشكلة عند محاولة التسجيل,registration_problems,msa,False
+لا يقبل الموقع بريدي الإلكتروني عند التسجيل,registration_problems,msa,False
+فشلت عملية إنشاء الحساب أكثر من مرة,registration_problems,msa,True
+ما يجيني كود التفعيل,registration_problems,gulf,True
+التسجيل ما يزبط يقول الرقم مستخدم,registration_problems,gulf,True
+كل ما اسجل يطلع لي خطأ,registration_problems,gulf,True
+أرغب في تقييم تجربتي مع المتجر,review,msa,True
+كيف أترك تعليقاً على المنتج؟,review,msa,True
+أود مشاركة رأيي حول جودة المنتج,review,msa,True
+ابي اعطي المنتج خمس نجوم وين اقيمه؟,review,gulf,True
+ودي اكتب تعليق على الطلب,review,gulf,True
+وين احط رأيي في المنتج؟,review,gulf,True
+كيف أضيف عنواناً جديداً إلى حسابي؟,set_up_shipping_address,msa,True
+أريد حفظ عنوان العمل في حسابي,set_up_shipping_address,msa,True
+أرغب في تسجيل عنوان توصيل لأول مرة,set_up_shipping_address,msa,False
+ابي احط عنواني في الحساب,set_up_shipping_address,gulf,False
+كيف اسجل عنوان جديد عندكم؟,set_up_shipping_address,gulf,True
+ودي اضيف عنوان بيتي الجديد في التطبيق,set_up_shipping_address,gulf,True
+أريد تغيير نوع حسابي إلى حساب تجاري,switch_account,msa,False
+هل يمكن الترقية إلى حساب مميز؟,switch_account,msa,True
+كيف أنتقل من حساب فردي إلى حساب مؤسسة؟,switch_account,msa,True
+ابي احول حسابي لحساب تاجر,switch_account,gulf,True
+كيف ارجع حسابي عادي بدل الشركات؟,switch_account,gulf,True
+ودي ابدل لحساب ثاني,switch_account,gulf,True
+أريد معرفة مكان شحنتي الآن,track_order,msa,True
+ما هي حالة طلبي الحالي؟,track_order,msa,True
+أرجو تزويدي برقم تتبع الشحنة,track_order,msa,True
+طلبي وين وصل؟,track_order,gulf,True
+ابي اتتبع الشحنة حقتي,track_order,gulf,True
+الطلب طلع ولا للحين؟,track_order,gulf,True
+متى سيتم إيداع المبلغ المسترد في حسابي؟,track_refund,msa,True
+أريد متابعة حالة استرجاع المبلغ,track_refund,msa,True
+لم أستلم قيمة الاسترداد بعد,track_refund,msa,False
+فلوسي متى ترجع؟,track_refund,gulf,True
+الاسترجاع وين وصل للحين ما جاني شي,track_refund,gulf,True
+طولتوا في رد المبلغ متى بيوصل؟,track_refund,gulf,True

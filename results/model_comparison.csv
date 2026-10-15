@@ -1,0 +1,5 @@
+encoder,EN macro_f1,AR macro_f1,AR 95% CI,ms / ticket
+TF-IDF (no embeddings),0.996,0.662,"[0.482, 0.742]",1.0
+MiniLM-multilingual,0.994,0.752,"[0.588, 0.829]",30.3
+e5-small (ours),0.996,0.733,"[0.576, 0.802]",31.3
+e5-base (2x bigger),0.997,0.76,"[0.586, 0.836]",112.9

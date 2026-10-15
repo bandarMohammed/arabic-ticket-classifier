@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Arabic Ticket Classifier</title>
+<meta name="description" content="Support-ticket intent classifier for English, Arabic (MSA) and Gulf dialect — SDAIA Applied NLP capstone.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f6f7f9; --card: #ffffff; --ink: #14181f; --muted: #5d6675; --line: #e3e6eb;
+    --accent: #0f766e; --accent-soft: #e6f4f2; --warn: #b45309; --warn-soft: #fdf3e6;
+    --bar: #0f766e; --bar-bg: #edf0f3; --radius: 14px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0e1116; --card: #161a21; --ink: #e8ebf0; --muted: #98a1b0; --line: #262c36;
+      --accent: #2dd4bf; --accent-soft: #10302d; --warn: #f59e0b; --warn-soft: #33260f;
+      --bar: #2dd4bf; --bar-bg: #222831;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+         font-family: "IBM Plex Sans", "IBM Plex Sans Arabic", system-ui, sans-serif; line-height: 1.5; }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 32px 16px 48px; }
+  header h1 { font-size: clamp(22px, 4vw, 30px); margin: 0 0 4px; letter-spacing: -0.01em; }
+  header .ar { text-align: left; font-family: "IBM Plex Sans Arabic", sans-serif; color: var(--muted); font-size: 18px; margin: 0 0 12px; }
+  header p { color: var(--muted); margin: 0; max-width: 680px; }
+  .stats { display: flex; flex-wrap: wrap; gap: 10px; margin: 18px 0 24px; }
+  .stat { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; font-size: 14px; }
+  .stat b { font-variant-numeric: tabular-nums; }
+  .grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 16px; }
+  @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; }
+  label.h { display: block; font-weight: 600; font-size: 14px; margin-bottom: 8px; }
+  textarea { width: 100%; min-height: 110px; resize: vertical; padding: 12px; border-radius: 10px;
+             border: 1px solid var(--line); background: var(--bg); color: var(--ink);
+             font: 17px/1.6 "IBM Plex Sans Arabic", "IBM Plex Sans", sans-serif; }
+  textarea:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .row { display: flex; align-items: center; gap: 12px; margin-top: 14px; flex-wrap: wrap; }
+  button.primary { background: var(--accent); color: #fff; border: 0; border-radius: 10px; padding: 11px 18px;
+                   font: 600 15px "IBM Plex Sans", "IBM Plex Sans Arabic", sans-serif; cursor: pointer; }
+  @media (prefers-color-scheme: dark) { button.primary { color: #06201d; } }
+  button.primary:disabled { opacity: .5; cursor: wait; }
+  .status { font-size: 13px; color: var(--muted); }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .chip { border: 1px solid var(--line); background: var(--bg); color: var(--ink); border-radius: 999px;
+          padding: 6px 12px; font: 14px "IBM Plex Sans Arabic", "IBM Plex Sans", sans-serif; cursor: pointer; }
+  .chip:hover { border-color: var(--accent); }
+  .tau { margin-top: 18px; }
+  .tau input { width: 100%; accent-color: var(--accent); }
+  .tau .lbl { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); }
+  .empty { color: var(--muted); font-size: 14px; }
+  .route { border-radius: 10px; padding: 10px 12px; font-weight: 600; margin-bottom: 14px; }
+  .route.auto { background: var(--accent-soft); color: var(--accent); }
+  .route.human { background: var(--warn-soft); color: var(--warn); }
+  .bars { display: grid; gap: 10px; margin-bottom: 16px; }
+  .bar .top { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 4px; }
+  .bar .top code { font-size: 13px; }
+  .bar .track { height: 8px; background: var(--bar-bg); border-radius: 999px; overflow: hidden; }
+  .bar .fill { height: 100%; background: var(--bar); border-radius: 999px; transition: width .3s; }
+  .bar:not(:first-child) .fill { opacity: .45; }
+  .meta { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .meta div { border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; }
+  .meta small { display: block; color: var(--muted); font-size: 12px; }
+  .meta span { font-weight: 600; font-size: 14px; }
+  .pri-urgent { color: #dc2626; } .pri-high { color: var(--warn); }
+  footer { margin-top: 28px; color: var(--muted); font-size: 13px; }
+  footer a { color: var(--accent); }
+  .pipeline { font-family: ui-monospace, Menlo, monospace; font-size: 12.5px; color: var(--muted); margin-top: 6px; overflow-x: auto; white-space: nowrap; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Arabic-Aware Support Ticket Classifier</h1>
+    <p class="ar" dir="rtl">مصنّف تذاكر الدعم الفني — عربي فصحى، لهجة خليجية، وإنجليزي</p>
+    <p>Type a customer message. The model picks one of <b>27 intents</b>; if its confidence is below the threshold τ, the ticket goes to a human.</p>
+    <div class="pipeline">message → multilingual-e5-small (runs in your browser) → logistic regression → intent + confidence → route</div>
+  </header>
+
+  <div class="stats">
+    <div class="stat">Arabic macro-F1 <b>0.26 → 0.73</b></div>
+    <div class="stat">Gulf dialect <b>0.04 → 0.65</b></div>
+    <div class="stat">English <b>0.996</b></div>
+  </div>
+
+  <div class="grid">
+    <section class="card">
+      <label class="h" for="msg">Customer message · رسالة العميل</label>
+      <textarea id="msg" dir="auto" placeholder="وين طلبي؟ صار له أسبوع"></textarea>
+      <div class="row">
+        <button class="primary" id="go" disabled>Classify · صنّف</button>
+        <span class="status" id="status">Loading model…</span>
+      </div>
+      <div class="chips" id="chips"></div>
+      <div class="tau">
+        <div class="lbl"><span>Confidence threshold τ</span><span id="tauVal"></span></div>
+        <input type="range" id="tau" min="0" max="0.9" step="0.05">
+        <div class="lbl"><span>more automation</span><span>more human review</span></div>
+      </div>
+    </section>
+
+    <section class="card" id="out">
+      <p class="empty">Results appear here. The first load downloads the encoder (~120 MB) once; after that it runs locally in your browser.</p>
+    </section>
+  </div>
+
+  <footer>
+    SDAIA Academy · Applied NLP Engineering — capstone by Bandar.
+    Encoder: <code>multilingual-e5-small</code> (8-bit ONNX in the browser, so scores can differ slightly from the evaluated Python model).
+    <span id="repoLink"></span>
+  </footer>
+</div>
+
+<script type="module">
+import { pipeline, env } from "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.2";
+env.allowLocalModels = false;
+
+const REPO_URL = ""; // optional: paste your GitHub repo URL here
+if (REPO_URL) document.getElementById("repoLink").innerHTML = ` · <a href="${REPO_URL}" target="_blank" rel="noopener">Code & results on GitHub</a>`;
+
+const CATEGORY = {
+  cancel_order:"ORDER", change_order:"ORDER", place_order:"ORDER", track_order:"ORDER",
+  change_shipping_address:"SHIPPING", set_up_shipping_address:"SHIPPING", check_cancellation_fee:"CANCEL",
+  check_invoice:"INVOICE", get_invoice:"INVOICE", check_payment_methods:"PAYMENT", payment_issue:"PAYMENT",
+  check_refund_policy:"REFUND", get_refund:"REFUND", track_refund:"REFUND", complaint:"FEEDBACK", review:"FEEDBACK",
+  contact_customer_service:"CONTACT", contact_human_agent:"CONTACT", create_account:"ACCOUNT", delete_account:"ACCOUNT",
+  edit_account:"ACCOUNT", recover_password:"ACCOUNT", registration_problems:"ACCOUNT", switch_account:"ACCOUNT",
+  delivery_options:"DELIVERY", delivery_period:"DELIVERY", newsletter_subscription:"SUBSCRIPTION",
+};
+const PRIORITIES = ["low", "medium", "high", "urgent"];
+const BASE = { payment_issue:"high", complaint:"high", get_refund:"medium", track_refund:"medium", cancel_order:"medium",
+  change_order:"medium", change_shipping_address:"medium", track_order:"medium", recover_password:"medium",
+  registration_problems:"medium", delete_account:"medium", contact_human_agent:"medium" };
+const URG_EN = /\b(urgent|urgently|asap|immediately|right now|now!|at once|emergency|furious|unacceptable|ridiculous|worst|scam|fraud|lawyer|sue)\b|!!/i;
+const URG_AR = /(عاجل|فورا|فوراً|حالا|حالاً|بسرعة|الحين|!!|شي ما يصير|سيئة)/;
+function priority(intent, text) {
+  let lvl = PRIORITIES.indexOf(BASE[intent] || "low");
+  if (URG_EN.test(text) || URG_AR.test(text)) lvl = Math.min(lvl + 1, 3);
+  return PRIORITIES[lvl];
+}
+
+const EXAMPLES = [
+  "وين طلبي؟ صار له أسبوع",
+  "انخصم المبلغ مرتين من بطاقتي عاجل!!",
+  "ابي اكلم موظف الحين لو سمحت",
+  "أرغب في حذف حسابي نهائياً",
+  "I was charged twice for order A-55821, fix it now!",
+  "How long does delivery to Jeddah take?",
+  "اقدر ادفع بأبل باي؟",
+];
+
+const $ = (id) => document.getElementById(id);
+const msg = $("msg"), go = $("go"), status = $("status"), tau = $("tau"), tauVal = $("tauVal"), out = $("out");
+const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c]));
+
+for (const ex of EXAMPLES) {
+  const b = document.createElement("button");
+  b.className = "chip"; b.dir = "auto"; b.textContent = ex;
+  b.onclick = () => { msg.value = ex; if (!go.disabled) run(); };
+  $("chips").appendChild(b);
+}
+
+let model, extractor, last = null;
+tau.oninput = () => { tauVal.textContent = (+tau.value).toFixed(2); if (last) render(last); };
+
+async function init() {
+  try {
+    model = await (await fetch("model.json")).json();
+    tau.value = model.tau; tauVal.textContent = (+model.tau).toFixed(2);
+    extractor = await pipeline("feature-extraction", "Xenova/multilingual-e5-small", {
+      dtype: "q8",
+      progress_callback: (p) => {
+        if (p.status === "progress" && p.file && p.file.endsWith(".onnx")) status.textContent = `Downloading encoder… ${Math.round(p.progress)}%`;
+      },
+    });
+    status.textContent = "Ready · جاهز";
+    go.disabled = false;
+  } catch (e) {
+    status.textContent = "Could not load the model: " + e.message;
+    console.error(e);
+  }
+}
+
+function softmax(z) {
+  const m = Math.max(...z), e = z.map((v) => Math.exp(v - m)), s = e.reduce((a, b) => a + b, 0);
+  return e.map((v) => v / s);
+}
+
+async function run() {
+  const text = msg.value.trim();
+  if (!text) return;
+  go.disabled = true; status.textContent = "Classifying…";
+  const t0 = performance.now();
+  const emb = await extractor("query: " + text, { pooling: "mean", normalize: true });
+  const x = emb.data;
+  const z = model.coef.map((w, k) => w.reduce((acc, wi, i) => acc + wi * x[i], model.intercept[k]));
+  const p = softmax(z);
+  const order = p.map((v, i) => [v, i]).sort((a, b) => b[0] - a[0]);
+  last = { text, order, ms: Math.round(performance.now() - t0) };
+  render(last);
+  go.disabled = false; status.textContent = "Ready · جاهز";
+}
+
+function render({ text, order, ms }) {
+  const t = +tau.value;
+  const [conf, idx] = order[0];
+  const intent = model.classes[idx];
+  const human = conf < t;
+  const pri = priority(intent, text);
+  const lang = /[؀-ۿ]/.test(text) ? "Arabic · عربي" : "English";
+  const bars = order.slice(0, 3).map(([v, i]) => `
+    <div class="bar"><div class="top"><code>${model.classes[i]}</code><span>${(v * 100).toFixed(0)}%</span></div>
+    <div class="track"><div class="fill" style="width:${(v * 100).toFixed(1)}%"></div></div></div>`).join("");
+  out.innerHTML = `
+    <div class="route ${human ? "human" : "auto"}">${human
+      ? `🧑‍💼 Human review — confidence ${(conf * 100).toFixed(0)}% &lt; τ ${(t * 100).toFixed(0)}%`
+      : `🤖 Auto-route — confidence ${(conf * 100).toFixed(0)}% ≥ τ ${(t * 100).toFixed(0)}%`}</div>
+    <label class="h">Intent (top 3)</label>
+    <div class="bars">${bars}</div>
+    <div class="meta">
+      <div><small>Category</small><span>${CATEGORY[intent] || "—"}</span></div>
+      <div><small>Priority</small><span class="pri-${pri}">${pri}</span></div>
+      <div><small>Language</small><span>${lang}</span></div>
+    </div>
+    <p class="status" style="margin:12px 0 0">“<span dir="auto">${esc(text)}</span>” · ${ms} ms</p>`;
+}
+
+go.onclick = run;
+msg.addEventListener("keydown", (e) => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey) && !go.disabled) run(); });
+init();
+</script>
+</body>
+</html>

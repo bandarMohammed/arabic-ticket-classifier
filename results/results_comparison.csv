@@ -1,0 +1,17 @@
+model,slice,n,macro_f1,95% CI,abstain %
+M0_baseline,EN,1080,0.958,"[0.954, 0.962]",1%
+M0_baseline,AR,54,0.262,"[0.122, 0.325]",78%
+M0_baseline,AR · MSA,27,0.357,"[0.222, 0.474]",59%
+M0_baseline,AR · Gulf,27,0.036,"[0.000, 0.062]",96%
+M1_tuned_tau,EN,1080,0.996,"[0.993, 0.999]",0%
+M1_tuned_tau,AR,54,0.398,"[0.243, 0.470]",37%
+M1_tuned_tau,AR · MSA,27,0.423,"[0.265, 0.550]",26%
+M1_tuned_tau,AR · Gulf,27,0.274,"[0.139, 0.402]",48%
+M2_arabic_data,EN,1080,0.996,"[0.993, 0.999]",0%
+M2_arabic_data,AR,54,0.711,"[0.523, 0.790]",0%
+M2_arabic_data,AR · MSA,27,0.753,"[0.578, 0.911]",0%
+M2_arabic_data,AR · Gulf,27,0.568,"[0.393, 0.754]",0%
+M3_arabic_clean,EN,1080,0.996,"[0.993, 0.999]",0%
+M3_arabic_clean,AR,54,0.733,"[0.576, 0.802]",0%
+M3_arabic_clean,AR · MSA,27,0.753,"[0.578, 0.911]",0%
+M3_arabic_clean,AR · Gulf,27,0.648,"[0.467, 0.776]",0%

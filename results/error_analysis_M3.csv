@@ -1,0 +1,18 @@
+text,lang,dialect,y_true,y_pred,confidence,cause,note
+انتقلت إلى شقة جديدة، كيف أحدث عنوان الشحن للطلب الحالي؟,ar,msa,change_shipping_address,set_up_shipping_address,0.513,ambiguous,change vs set-up shipping address are near-synonyms
+لو رفضت الاستلام بيخصمون علي شي؟,ar,gulf,check_cancellation_fee,cancel_order,0.19,coverage,indirect phrasing: 'refuse delivery' instead of 'cancel'
+اقدر ادفع بأبل باي؟,ar,gulf,check_payment_methods,get_invoice,0.358,coverage,brand name 'Apple Pay' never seen in training
+هل يمكن استرداد المبلغ للمنتجات المخفضة؟,ar,msa,check_refund_policy,get_refund,0.388,ambiguous,policy question that contains the word 'refund'
+وش الشروط عشان ارجع القطعة واسترد فلوسي؟,ar,gulf,check_refund_policy,track_refund,0.211,model error,"'conditions' is explicit, but 'get my money back' dominated"
+ما هي خطوات التسجيل في الموقع؟,ar,msa,create_account,registration_problems,0.401,ambiguous,'registration' appears in both create_account and registration_problems
+اقدر استلم الطلب من نقطة استلام؟,ar,gulf,delivery_options,track_order,0.154,coverage,concept 'pickup point' never seen in training
+رجعوا لي فلوسي بسرعة لو سمحت,ar,gulf,get_refund,track_refund,0.141,ambiguous,urgency reads like refund tracking
+انسحبت الفلوس مرتين على نفس الطلب عاجل,ar,gulf,payment_issue,cancel_order,0.198,coverage,Gulf verb 'انسحبت' (withdrawn) not in training
+كيف أعيد تعيين كلمة المرور؟,ar,msa,recover_password,edit_account,0.483,label noise,a synthetic edit_account example mentions updating the password
+حسابي انقفل وما اقدر ادخل,ar,gulf,recover_password,delete_account,0.218,coverage,'locked' is close to 'close my account' in delete_account examples
+ما هي حالة طلب الاسترداد الخاص بي؟,ar,msa,track_refund,check_cancellation_fee,0.247,model error,clear refund-status request
+صار لي عشرة ايام وما رجع المبلغ,ar,gulf,track_refund,check_refund_policy,0.187,coverage,"implicit complaint, no explicit question"
+edtiing order A-95256,en,en,change_order,track_order,0.452,coverage,typo 'edtiing' not covered by training
+i exepct a compensation of SAR1250,en,en,track_refund,get_refund,0.729,label noise,asks for compensation: get_refund fits better than the gold label
+i cannot find bill #85632 can usendit to me,en,en,get_invoice,check_invoice,0.581,ambiguous,get_invoice vs check_invoice (the Lab D3_4 example)
+am I entitled to a reimbursement?,en,en,check_refund_policy,get_refund,0.778,ambiguous,eligibility question that contains 'reimbursement'
