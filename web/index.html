@@ -103,13 +103,13 @@
     </section>
 
     <section class="card" id="out">
-      <p class="empty">Results appear here. The first load downloads the encoder (~120 MB) once; after that it runs locally in your browser.</p>
+      <p class="empty">Results appear here. The first load downloads the encoder (~470 MB) once; after that it runs locally in your browser.</p>
     </section>
   </div>
 
   <footer>
     SDAIA Academy · Applied NLP Engineering — capstone by Bandar.
-    Encoder: <code>multilingual-e5-small</code> (8-bit ONNX in the browser, so scores can differ slightly from the evaluated Python model).
+    Encoder: <code>multilingual-e5-small</code> (full-precision ONNX running in your browser).
     <span id="repoLink"></span>
   </footer>
 </div>
@@ -117,6 +117,8 @@
 <script type="module">
 import { pipeline, env } from "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.0.2";
 env.allowLocalModels = false;
+// fp32 = same weights as the evaluated Python model; add ?dtype=q8 to the URL for a smaller (~120 MB) but less exact encoder
+const DTYPE = new URLSearchParams(location.search).get("dtype") || "fp32";
 
 const REPO_URL = "https://github.com/bandarMohammed/arabic-ticket-classifier";
 if (REPO_URL) document.getElementById("repoLink").innerHTML = ` · <a href="${REPO_URL}" target="_blank" rel="noopener">Code & results on GitHub</a>`;
@@ -171,7 +173,7 @@ async function init() {
     model = await (await fetch("model.json")).json();
     tau.value = model.tau; tauVal.textContent = (+model.tau).toFixed(2);
     extractor = await pipeline("feature-extraction", "Xenova/multilingual-e5-small", {
-      dtype: "q8",
+      dtype: DTYPE,
       progress_callback: (p) => {
         if (p.status === "progress" && p.file && p.file.endsWith(".onnx")) status.textContent = `Downloading encoder… ${Math.round(p.progress)}%`;
       },

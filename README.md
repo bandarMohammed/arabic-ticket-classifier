@@ -85,7 +85,7 @@ All 17 M3 test errors were reviewed (13 Arabic of 54, 4 English of 1,080), using
 - Errors were found on the test set, so they are **not** fixed by editing training data (that would tune on test data); they motivate the next steps below.
 
 ## Demo
-**Web interface** in [`web/`](web/) — a static page (deployable on Vercel) where the encoder runs **in the visitor's browser** with Transformers.js (`Xenova/multilingual-e5-small`, 8-bit ONNX) and the trained logistic-regression weights are loaded from `web/model.json`. Type a message in English, MSA or Gulf dialect and get the top-3 intents, the route, the category and the priority; a slider changes τ live to show the automation-vs-safety trade-off. Because the browser uses a quantized encoder, scores can differ slightly from the evaluated Python model.
+**Web interface** in [`web/`](web/) — a static page (deployable on Vercel) where the encoder runs **in the visitor's browser** with Transformers.js (`Xenova/multilingual-e5-small`, full-precision ONNX) and the trained logistic-regression weights are loaded from `web/model.json`. Type a message in English, MSA or Gulf dialect and get the top-3 intents, the route, the category and the priority; a slider changes τ live to show the automation-vs-safety trade-off.
 
 A Python/Gradio version of the same interface is in [`app/`](app/).
 
