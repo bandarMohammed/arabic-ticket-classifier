@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Arabic Ticket Classifier</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#1c355e; --teal:#00ae8d; --coral:#e96852; --green:#6abf4b; --amber:#ffb548; --purple:#625d9c;
+  --ink:#101820; --paper:#f7f5f0; --paper2:#efece4; --line:#d4d0c5; --muted:#5b6472; --white:#ffffff;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#20262e;overflow:hidden}
+body{font-family:"IBM Plex Sans","IBM Plex Sans Arabic",system-ui,sans-serif;color:var(--ink)}
+.ar{font-family:"IBM Plex Sans Arabic",sans-serif;direction:rtl;unicode-bidi:isolate}
+.mono{font-family:"IBM Plex Mono",monospace}
+/* fixed 16:9 stage scaled to fit */
+#viewport{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+#stage{width:1600px;height:900px;background:var(--paper);position:relative;transform-origin:center center;box-shadow:0 20px 60px rgba(0,0,0,.35);overflow:hidden}
+.chrome{position:absolute;inset:0 0 auto 0;height:96px;display:flex;align-items:center;justify-content:space-between;padding:0 72px;z-index:3}
+.chrome .logo{height:46px;color:var(--navy);display:flex}
+.chrome .logo > svg{height:100%;width:auto}
+.chrome .crumb{font-size:18px;color:var(--muted);letter-spacing:.03em}
+.chrome .crumb b{color:var(--navy)}
+.foot{position:absolute;inset:auto 0 0 0;height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 72px;font-size:16px;color:var(--muted);z-index:3}
+.foot .track{display:flex;align-items:center;gap:10px}
+.foot .track i{width:12px;height:12px;background:var(--amber);border-radius:3px;display:inline-block}
+.prog{position:absolute;left:0;bottom:0;height:6px;background:var(--amber);transition:width .3s;z-index:4}
+.slide{position:absolute;inset:96px 72px 64px 72px;display:none;flex-direction:column}
+.slide.on{display:flex;animation:in .35s ease}
+@keyframes in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.kicker{font-size:20px;font-weight:600;color:var(--teal);letter-spacing:.08em;text-transform:uppercase;margin:18px 0 8px}
+h1{font-size:76px;line-height:1.05;margin:0;color:var(--navy);letter-spacing:-.02em}
+h2{font-size:56px;line-height:1.1;margin:0 0 30px;color:var(--navy);letter-spacing:-.015em}
+h3{font-size:28px;margin:0 0 10px;color:var(--navy)}
+p,li{font-size:28px;line-height:1.45}
+ul{margin:0;padding-left:30px} li{margin:8px 0}
+.lead{font-size:32px;color:var(--muted);max-width:1250px}
+.row{display:flex;gap:28px}
+.col{flex:1}
+.card{background:var(--white);border:1.5px solid var(--line);border-radius:20px;padding:26px 30px}
+.card.navy{background:var(--navy);border-color:var(--navy);color:#fff}
+.card.navy h3{color:#fff}
+.card.teal{border-color:var(--teal);background:#e6f6f2}
+.card.coral{border-color:var(--coral);background:#fdeeea}
+.card.amber{border-color:var(--amber);background:#fff6e6}
+.big{font-size:96px;font-weight:700;line-height:1;color:var(--navy);font-variant-numeric:tabular-nums}
+.big small{font-size:34px;color:var(--muted);font-weight:500}
+.arrow{color:var(--teal)}
+.label{font-size:22px;color:var(--muted);margin-bottom:8px}
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:16px;overflow:hidden;border:1.5px solid var(--line)}
+th,td{padding:16px 20px;font-size:26px;border-bottom:1px solid var(--line);text-align:left}
+th{background:var(--paper2);color:var(--muted);font-size:20px;font-weight:600;letter-spacing:.03em;text-transform:uppercase}
+td.n,th.n{text-align:center;font-variant-numeric:tabular-nums}
+tr.hl td{background:#e6f6f2;font-weight:700;color:var(--navy)}
+tr:last-child td{border-bottom:0}
+.bar{height:16px;background:var(--paper2);border-radius:999px;overflow:hidden;min-width:180px}
+.bar i{display:block;height:100%;background:var(--teal);border-radius:999px}
+.bar.bad i{background:var(--coral)}
+.flow{display:flex;align-items:center;gap:16px;margin:10px 0 26px}
+.node{background:#fff;border:2px solid var(--line);border-radius:16px;padding:18px 22px;font-size:24px;text-align:center;line-height:1.3}
+.node b{display:block;font-size:26px;color:var(--navy)}
+.node small{color:var(--muted);font-size:19px}
+.node.k{border-color:var(--teal);background:#e6f6f2}
+.node.ghost{border-style:dashed;color:var(--muted)}
+.ar-in{font-family:"IBM Plex Sans Arabic",sans-serif;direction:rtl}
+.chip{display:inline-block;font-size:20px;font-weight:600;padding:4px 14px;border-radius:999px;background:var(--paper2);color:var(--navy);margin-right:8px}
+.chip.t{background:#e6f6f2;color:#00775f}.chip.c{background:#fdeeea;color:#b4412f}.chip.a{background:#fff1d6;color:#9a6200}.chip.p{background:#ecebf6;color:var(--purple)}
+.check li{list-style:none;position:relative;padding-left:12px}
+.check li::before{content:"✓";position:absolute;left:-30px;color:var(--teal);font-weight:700}
+.check li.na::before{content:"–";color:var(--muted)}
+.note{font-size:22px;color:var(--muted)}
+.title-band{position:absolute;left:-72px;right:-72px;bottom:-64px;height:16px;background:linear-gradient(90deg,var(--navy),var(--teal),var(--green),var(--amber))}
+a{color:var(--teal);text-decoration:none}
+.links p{font-size:26px;margin:6px 0}
+/* controls */
+.hud{position:fixed;right:14px;top:12px;display:flex;gap:8px;z-index:10;opacity:0;transition:opacity .2s}
+.hud:hover{opacity:1}
+.hud button{background:#fff;border:0;border-radius:8px;padding:6px 12px;font:600 14px "IBM Plex Sans",sans-serif;cursor:pointer}
+@media print{
+  html,body{overflow:visible;background:#fff} #viewport{position:static;display:block} .hud{display:none}
+  #stage{transform:none!important;box-shadow:none} .slide{display:flex!important;position:relative;inset:auto;height:740px;page-break-after:always}
+}
+</style>
+</head>
+<body>
+<div id="viewport"><div id="stage">
+  <div class="chrome">
+    <div class="logo"><svg role="img" aria-label="SDAIA Academy" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 513 120"> <svg x="0" y="0" width="173.7" height="120" viewBox="0 0 173.7 120"> <defs> <linearGradient id="acad-a"> <stop offset="0" stop-color="#273470"/> <stop offset=".5" stop-color="#3c9"/> <stop offset="1" stop-color="#99d633"/> </linearGradient> <linearGradient id="acad-b"> <stop offset="0" stop-color="#6cf"/> <stop offset=".5" stop-color="#6cf"/> <stop offset=".75" stop-color="#6258a6"/> <stop offset="1" stop-color="#273470"/> </linearGradient> <linearGradient id="acad-c"> <stop offset="0" stop-color="#273470"/> <stop offset=".5" stop-color="#f63"/> <stop offset="1" stop-color="#fdbd4d"/> </linearGradient> </defs> <path fill="url(#acad-a)" d="m68.7 10.1 17.3 10V0zm36.3 0-17.4 10V0zm-6.3 100 17.2-10.2V120zm36.2 0-17.3-10.2V120z"/> <path fill="url(#acad-b)" d="m30 33 26.8 15.5v-31zm56 0L59.5 48.5v-31zM0 50.4l26.9 15.4V34.9zm56 0L29.5 65.8V34.9zm-56 35 26.8-15.6v31zm56 0L29.5 69.7v31zm4 0L86.9 70v31zm56.2 0L89.3 70v31zM30 102.6 56.8 87v31zm56 0L59.5 87v31z"/> <path fill="url(#acad-c)" d="m87.6 33 26.8 15.5v-31zm56.1 0L117 48.5v-31zm-26 17.4 26.7 15.4V34.9zm56 0L147 65.8V34.9zm-56 35 26.7-15.6v31zm56 0L147 69.7v31z"/> </svg> <path fill="currentColor" d="M200.1 30.7v11.7c-.1 12.6 0 13.2.6 14.4q1.2 2 3.4 2.7h.5c.6.2 3 .3 14.5.3h13.5V43.2h-5.4v11.7h-10.4c-10.2 0-10.5 0-10.8-.3s-.7-1-.7-1.3V30.7zm37.3 14.5v14.6h5.5V30.7h-5.4zm225.3-14.4v11.6c0 12.7 0 13.2.7 14.6q.8 1.4 2.2 2c1.6.8 1 .8 15 .8l14-.1q1.7-.3 3.2-1a7 7 0 002.8-4.3q.2-1.5 0-3.2c-.2-1-1.1-2.7-1.8-3.7q-2.8-3.2-6.5-5.6l2.7-1.3 4-2 1.5-.7v-3.2l-.2-3-2 1.1-9 4.7-2.6 1.5-.7.2v6l.6.2q3 1.4 5.4 3.5 2.7 2.1 3 3.9c.1 1 0 1.2-.8 1.7l-.5.4h-12.2l-12.4-.1q-.5-.2-.6-.8l-.3-.7V30.6h-2.7l-2.7.2m42.4 0v29h5.3V30.6h-5.3m-169.6.3a3 3 0 00-1 5q.6.5 1.8.7c1.6.2 3.1-1.3 3.1-3 0-1.9-2-3.4-3.9-2.7m6.7 0q-1.6.8-1.8 2.7 0 2.7 2.7 3c1.5.2 3.2-1.3 3.2-2.9 0-.5-.5-1.5-.8-2-.8-.8-2.3-1.2-3.3-.8m-.8 9.8c-2 0-4 .2-4.2.3q-2.4.4-4 2.2a7 7 0 00-2 3.1q-.4 1.5-.3 3.1a7 7 0 003.8 6.4 9 9 0 006.9.7l.4.5q.8 1.3 2 2c1.5.8 1.2.8 13.3.8l11.6-.1a7 7 0 003.5-1.6l.3-.3.5.5q1 .9 2.3 1.2c.8.3 1 .3 9.2.3 7.5 0 8.6 0 9.3-.2q1-.2 1.9-.8l.5-.4.3-.3.7.5q2.7 1.6 6.3 1.6c2.7 0 4.2-.7 5.7-2.6l.2-.3.5.5c1 1.2 1.3 1.5 1.9 1.7.5.3.8.3 13.3.3h12.8V43h-5.5v11.8h-20l-.4-.4-1-1c-.2-.4-.2-.6-.2-1.5q0-5.7-4.2-7.6a8 8 0 00-3.8-.8q-3.4-.1-5.6 2.2a13 13 0 00-3 5.1c-1.1 3-1.8 3.7-3 3.9h-15.8q-.7 0-1-.6c-.8-.6-.8-1.2-.8-3.8V43H371l-2.7.1v5.5c0 5.7 0 5.5-1 6-.5.2-1 .2-10 .2l-9.9-.1-.5-.4c-.2-.3-.2-.6-.2-7V41h-5.3m0 8q0 2.7-.3 3h-1.5c-1.4 0-1.5 0-2.1-.3q-1.4-.6-1.4-2.5c0-1 0-1 .4-1.7a2 2 0 011-1q1.5-.6 3-.5h.9zm62.4 0q.8.3 1.4 1.5.3.4.3 1.6c0 1 0 1.2-.4 1.9q-.7 1.7-3.1 1.4c-1.1-.2-2.4-.7-2.8-1.2l-.4-.3.4-1c1-2.7 1.9-3.7 3.1-4q.8-.3 1.6 0M255.3 42l-1 .7-.9.5-1.3.9c-1.3.9-1.2.7-.5 2l1.5 2.2c3.4 5.2 3.4 5.2 3.4 5.7q0 .4-.6.6c-.4.3-.8.3-5 .3-3.3 0-4.4.1-4.4.3v4.6h1.6l8-.1q1.6-.3 2.8-1.3.7-.7.7-.2l.7.8c1 .8-.2.8 14.7.8h14q2-.4 3.7-1.6l.3-.3c.3-.2.3-.2.8.3q1.1 1 2.6 1.4a8 8 0 002.7.2l2.2-.1 1-.3q1-.5 2-1.3 0-.6.7.1 1.1.9 2.5 1.3c1 .3 1.2.3 4.9.3h3.9V43h-5.4v11.9h-1.7c-1.5 0-1.9 0-2.3-.3q-.9-.5-1.1-1.4-.2-.4-.2-4v-4.4h-5.4V49l-.2 4.5q-.2.8-1 1.3h-2.8q-.9-.4-1.4-1.3c-.2-.5-.2-.6-.2-3.8v-5h-2.8c-1.5 0-2.7.1-2.7.2v4.2q0 4.2-.2 4.5 0 .6-.7.8l-.6.4h-23l-.4-.3c-.4-.3-1.2-1.4-3-4.4l-1.6-2.5-.3-.7-.2-.3-.8-1.1v-.2h-.2l-2.1-3.6-.5.2M449 43.2l-2.5 1.6.8 1.3 4.1 6.5q1.2 1.7.2 2c-.4.3-.6.3-5 .3H442v4.9h3.6c8.2 0 8.4-.1 9.8-.7q1.3-.7 2.1-2.4.6-1.4.6-3.2c-.3-1-.5-1.7-1.9-4l-1.2-2-1-1.6-1.5-2.7-1-1.4q0-.2-2.4 1.4M223 64c-1 .4-2 1.7-2 3q0 1 1 2a3 3 0 004.2-.3c1.6-2 .2-4.8-2.4-4.7zm6.5.2q-1.1.6-1.6 1.8-.5 2.4 1.8 3.6c.7.2 1.8.1 2.4-.2 1.8-.9 2-3.4.5-4.8q-1.4-1-3.1-.4m136.1 0q-1.8.5-1.8 2.7c0 2.6 3 3.8 4.8 2q1.5-1.5.7-3.1-1.2-2.2-3.7-1.7m6.7 0c-1.3.5-2.2 2.4-1.6 4q.6.9 1.6 1.5a4 4 0 002.3 0c2.4-1.1 2.2-4.5-.1-5.5-.5-.2-1.6-.2-2.2 0m56.6 0a3 3 0 00-2.1 2.9c0 2 2.1 3.3 4.2 2.5a3 3 0 00-.2-5.3q-1-.4-2-.2m6.5.1q-1.7.9-1.8 2.8 0 2.5 2.6 2.8 2.3.1 3-2 .4-1.2-.3-2.5-1.4-1.6-3.5-1m-15 14v10l-1-.8a7 7 0 00-5-2q-2.7 0-5 1.6c-3.5 2.7-4.4 10-1.9 14.7q1 1.6 2.6 2.8l1.4.7c.8.3 1 .3 2.2.4a8 8 0 003.8-.6q1.1-.7 1.9-1.6l1-1v2.7h.4l3.1.1h2.6V102l.1-21.8v-2zM417.7 90c2 .6 3.2 4.3 2.3 7.5q-.8 3.3-3.4 3.4c-2.8.3-4.4-2-4.2-6q0-3.8 2.3-5c.6-.2.8-.2 1.6-.2zM208 78.9c-4 .4-6.2 1.4-7.6 3.6-.8 1.3-1 2.2-1 4.2 0 1.9 0 2.5.8 3.7.4.8 1.6 2 2.5 2.5q2.2 1 4.5 1.5c1.8.4 3.8 1 4.5 1.3q1.2.5 1.5 1.7.3 1.8-1.3 2.7c-2.3 1.2-7.4.5-11.4-1.6l-1-.4v5.7l1 .3q5.1 1.8 10.7 1.5l1.4-.1a9 9 0 005.6-3.1q1.5-2.3 1.4-5 0-3.9-2.6-5.8a17 17 0 00-6.6-2.4q-1.8-.4-3.6-1c-.8-.4-1.5-1.4-1.3-2q0-1 .4-1.3 1-1.2 3.7-1.2c1.2 0 3.1.2 4 .4q2.3.6 4.2 1.5V80l-.5-.2-3.9-.8c-1-.2-4.5-.3-5.4-.2m18 .4h-.6v13a99 99 0 00.1 12.9c.4.1 11.4 0 12.4-.2l4-1c4-1.4 6.7-4.8 7.2-8.9.3-1.4.3-4.9 0-6.2q-1.5-6-6.4-8.1c-2.7-1.3-4.4-1.6-11.3-1.6zm10.9 5.3a7 7 0 015 3.8 8 8 0 01.7 4.3q0 1.5-.5 2.8-.5 1.8-2 3c-1.7 1.3-3.4 1.7-7.1 1.6h-1V84.4h2zm27.5-5.2c-2.7 0-3.5 0-3.6.2l-2 5.7-2.7 7.3-1.4 3.9-1.5 4-1.7 4.6c-.2.2.2.3 3.5.3 2.6 0 3 0 3-.2l1.2-3 .3-1 .1-.6H270l.7 2 .7 2.2.3.5h3.2l3.3-.1-.7-2-1.4-3.9-2.1-5.6-1.6-4.3-.7-1.9-3-8zm2 10.8 1.8 5.5h-6.6c-.2 0 2.7-9 3-9.8q.3-.4.4.2zm15.4 2.1.1 13h6.3V79.4H282zM301 80.1l-.7 2.4-2.8 7.3-3.4 9.2-2 5.6-.3.6h.3l3.3.2h2.8l.2-.4q.3-.4.5-1.4l.8-2 .3-1h10.2l.5 1.3.9 2.3.4 1.1h3.3l3.3-.1-1-2.8-1.6-4.6-1.7-4.5L311 84l-1.1-3.2-.6-1.3h-7.8zm5.5 9.5 2 6h-6.8l1-2.6 2.5-7.3zm35.3-10-.8 1.8-2 5.8-1.5 3.9-1 2.6-4.2 11.5q0 .2 3.3.2c2.9 0 3.2 0 3.3-.2l.5-1.5.8-2.1.4-1H351l.3 1 .9 2.3.5 1.4h6.6l-.3-1-2.5-6.5-1.7-4.7-2-5.7-2.3-6-.7-1.7v-.3zm4.1 6.7.8 2.1 1.4 4.5 1 2.9-6.8-.2 2.6-7.7.8-2.1zm24.7-.7c-1.8.1-3.1.5-4.8 1.4q-2.5 1.3-4 4-1.3 3.5-.7 7.2c.7 3.4 3.1 6 6.4 7 2.6.9 6.5.9 9.3 0 1.2-.4 1.1-.1 1.1-2.8v-2.5l-1.4.5c-1 .6-1.3.6-2.5.8-1.3.2-1.5.2-2.3 0-2.5-.5-3.6-1.6-4.2-3.9-.3-1-.2-2.8.1-3.7Q369 90 373 90c1.5 0 2.5.2 4 1l.9.5v-5l-.6-.2q-3.2-1-6.5-.8m18.4 0-4.9 1h-.7v4.7l.6-.3c.6-.3 2-.7 3.3-1q1.3-.3 2.7-.2c2 0 2.1 0 3 .3q1.9.5 1.9 2.3v.6H393c-2.1 0-4.5.1-5.5.4q-1.3.2-2.5.9-3 1.4-3 4.8-.1 4.4 3.2 6.2c1.2.6 3.9.8 5.6.4a8 8 0 003.9-2.4l.4-.5.1 1.3.2 1.3h6v-5.7c0-6 0-7.2-.4-8.6a7 7 0 00-5.2-5q-3.2-.9-6.6-.4m6 12a4 4 0 01-4 4q-1.5 0-2.3-.5c-1-1-1-2.9.1-3.8.7-.5 1.5-.6 3.9-.6h2.2zm44.7-12q-5 .6-7.3 3.9a12 12 0 00-.2 12 9 9 0 005.7 3.9c1 .3 1.3.4 4 .4s3.2 0 4.2-.3l3.7-1.1.5-.3v-2.3l-.1-2.3-1.1.5a14 14 0 01-5.8 1.6q-3.6.2-5.2-1.6c-.7-.6-1.2-1.8-1.1-2.3v-.4h14.3v-2c0-2.1-.4-3.5-1.2-5.2a9 9 0 00-5.7-4.5q-2.2-.5-4.6-.3m2.7 4.3c.8.2 1.7 1.1 2 1.8l.4 1.2v.7h-7.9V93c0-.7.6-1.8 1.1-2.4q2-1.6 4.4-1m24.9-4.3q-2.6.2-4.4 2.1l-.8.9v-2.7h-6.1l-.2 9.8v9.8h6c.2 0 .2-.4.2-5.3v-5.7q.5-2.4 1.5-3.3t2.4-.9c.7 0 1.6.5 1.7 1 .6 1 .6 1.3.6 7.8l.1 6.2c.2.2 6 .2 6.1 0v-5.7c0-5.3.2-5.6.4-6.4q1.2-3.2 3.6-2.9 1.9.3 2.3 2.8v12.3h6.2v-5.8c0-7.9-.1-8.8-1-10.7a5 5 0 00-3.4-3.1c-1.2-.3-3.3-.3-4.6 0a7 7 0 00-3.6 2.6l-.5.6-.6-.7q-2-3-6-2.7m23.7.3q-.2 0 .4 1.4l1.2 2.7 3.1 7 .2.7.9 2q1.5 3.2 2.6 6.5 0 .5-.7 1.5c-.6.9-1.2 1.1-3.1 1.2h-1.6v4h1.9c2.4.2 3.6 0 4.9-.5q1.5-.7 2.4-2 1-1.5 4.4-10.6l1-2.9 1-2.6 2.4-6.2.6-1.3.2-.8h-6l-.5 1.1-.6 2-1.6 4.5-1.6 4.3q0 .7-.3.7 0 .1-.3-.4l-1.4-3.5-1.2-3.2c-.3-.7-.8-2.1-1.3-3l-.7-2.2q0-.3-.3-.4zm12.4-61.1h1.4c-.4-4.5 2-6.5 6-5.4v2.7c-1.9-.3-3.6-.5-3 2.7h3.4v2.9h-7.8"/> </svg> </div>
+    <div class="crumb"><b>Capstone</b> · Applied NLP Engineering</div>
+  </div>
+
+  <!-- 1 TITLE -->
+  <section class="slide">
+    <div style="margin-top:110px">
+      <div class="kicker">Capstone · Use case 1 · Support ticket assistant</div>
+      <h1>Arabic-Aware Support<br>Ticket Classifier</h1>
+      <p class="ar" style="font-size:38px;color:var(--muted);margin:18px 0 0;text-align:left">مصنّف تذاكر الدعم الفني — إنجليزي · فصحى · خليجي</p>
+      <div class="row" style="margin-top:70px;gap:60px">
+        <div><div class="label">Presenter</div><p style="margin:0;font-weight:600">Bandar</p></div>
+        <div><div class="label">Live demo</div><p style="margin:0;font-size:22px" class="mono">arabic-ticket-classifier-web.vercel.app</p></div>
+        <div><div class="label">Code</div><p style="margin:0;font-size:22px" class="mono">github.com/bandarMohammed/arabic-ticket-classifier</p></div>
+      </div>
+    </div>
+    <div class="title-band"></div>
+  </section>
+
+  <!-- 2 PROBLEM & METRIC -->
+  <section class="slide">
+    <div class="kicker">1 · Problem & success metric</div>
+    <h2>Route every ticket to the right queue —<br>in English <em>and</em> Arabic</h2>
+    <div class="row">
+      <div class="col card">
+        <h3>The problem</h3>
+        <p>Customers write in English, Modern Standard Arabic and Gulf dialect. The course baseline understands English well but <b>fails on Arabic</b>.</p>
+      </div>
+      <div class="col card teal">
+        <h3>Our system</h3>
+        <p><b>Takes</b> a customer message → <b>produces</b> one of 27 intents + confidence, a route (auto / human), category and priority.</p>
+      </div>
+      <div class="col card navy">
+        <h3>Measured by</h3>
+        <p><b>Macro-F1</b> on held-out test sets, <b>sliced by language and dialect</b> (EN · MSA · Gulf), with 95% bootstrap CIs.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 DATA -->
+  <section class="slide">
+    <div class="kicker">2 · Data</div>
+    <h2>Three sources, leak-free splits</h2>
+    <table>
+      <tr><th>Source</th><th class="n">Size</th><th>Used for</th></tr>
+      <tr><td>Course Bitext tickets (English)</td><td class="n">5,400 · 1,080 · 1,080</td><td>train · validation · test</td></tr>
+      <tr><td>Hand-written Arabic tickets (MSA + Gulf)</td><td class="n">54 · 54</td><td><b>AR dev</b> (choose τ only) · <b>AR test</b> (report only)</td></tr>
+      <tr class="hl"><td>Synthetic Arabic tickets (LLM-written, reviewed)</td><td class="n">162 → 149</td><td>training only · 13 near-duplicates removed</td></tr>
+    </table>
+    <div class="row" style="margin-top:28px">
+      <div class="col card amber"><p style="margin:0"><b>Leakage check:</b> every synthetic ticket vs every Arabic test ticket — cosine similarity &gt; 0.95 ⇒ removed.</p></div>
+      <div class="col card"><p style="margin:0"><b>Labels:</b> 27 intents → 11 categories. No personal data.</p></div>
+    </div>
+  </section>
+
+  <!-- 4 BASELINE -->
+  <section class="slide">
+    <div class="kicker">3 · Baseline</div>
+    <h2>The course baseline is blind to Arabic</h2>
+    <div class="row" style="align-items:stretch">
+      <div class="col card"><div class="label">English</div><div class="big">0.96</div><div class="bar" style="margin-top:20px"><i style="width:96%"></i></div></div>
+      <div class="col card"><div class="label">Arabic</div><div class="big" style="color:var(--coral)">0.26</div><div class="bar bad" style="margin-top:20px"><i style="width:26%"></i></div></div>
+      <div class="col card"><div class="label">Gulf dialect</div><div class="big" style="color:var(--coral)">0.04</div><div class="bar bad" style="margin-top:20px"><i style="width:4%"></i></div></div>
+    </div>
+    <div class="card coral" style="margin-top:28px">
+      <p style="margin:0"><b>Why?</b> Trained on English only → on Arabic its confidence collapses and it <b>abstains on 78%</b> of tickets. (Overall macro-F1 0.92 hid this — only slicing revealed it.)</p>
+    </div>
+    <p class="note" style="margin-top:14px">e5-small embeddings + logistic regression, τ = 0.5 · macro-F1 on the Arabic test half</p>
+  </section>
+
+  <!-- 5 APPROACH -->
+  <section class="slide">
+    <div class="kicker">4 · Approach</div>
+    <h2>Same model — better data, honest threshold</h2>
+    <div class="flow">
+      <div class="node ar-in">"وين طلبي؟"</div><span class="arrow">→</span>
+      <div class="node k"><b>multilingual-e5-small</b><small>frozen encoder · 384-d</small></div><span class="arrow">→</span>
+      <div class="node k"><b>Logistic regression</b><small>27 intents</small></div><span class="arrow">→</span>
+      <div class="node"><b>confidence ≥ τ ?</b><small>auto · human review</small></div>
+    </div>
+    <table>
+      <tr><th>Version</th><th>What changes</th><th class="n" style="text-transform:none">τ</th></tr>
+      <tr><td><span class="chip">M0</span>Baseline</td><td>English training data</td><td class="n">0.50</td></tr>
+      <tr><td><span class="chip p">M1</span>Tuned threshold</td><td>τ chosen on validation (never test)</td><td class="n">0.25</td></tr>
+      <tr><td><span class="chip a">M2</span>+ Arabic data</td><td>+162 synthetic MSA & Gulf tickets</td><td class="n">0.05</td></tr>
+      <tr class="hl"><td><span class="chip t">M3</span>+ Arabic, clean</td><td>+149 after removing 13 test near-duplicates</td><td class="n">0.05</td></tr>
+    </table>
+  </section>
+
+  <!-- 6 RESULTS -->
+  <section class="slide">
+    <div class="kicker">5 · Results</div>
+    <h2>Arabic ×3, English unchanged</h2>
+    <div class="row">
+      <div style="flex:1.45">
+        <table>
+          <tr><th>Version</th><th class="n">EN</th><th class="n">AR</th><th class="n">Gulf</th><th>AR</th></tr>
+          <tr><td>M0 Baseline</td><td class="n">0.958</td><td class="n">0.262</td><td class="n">0.036</td><td><div class="bar bad"><i style="width:26%"></i></div></td></tr>
+          <tr><td>M1 Tuned τ</td><td class="n">0.996</td><td class="n">0.398</td><td class="n">0.274</td><td><div class="bar"><i style="width:40%"></i></div></td></tr>
+          <tr><td>M2 + Arabic</td><td class="n">0.996</td><td class="n">0.711</td><td class="n">0.568</td><td><div class="bar"><i style="width:71%"></i></div></td></tr>
+          <tr class="hl"><td>M3 + Arabic, clean</td><td class="n">0.996</td><td class="n">0.733</td><td class="n">0.648</td><td><div class="bar"><i style="width:73%"></i></div></td></tr>
+        </table>
+        <p class="note" style="margin-top:12px">M3 Arabic 95% CI [0.576, 0.802] — lower bound still far above baseline (0.262). Removing leaks did not lower the score.</p>
+      </div>
+      <div style="flex:1">
+        <div class="card">
+          <h3>Encoder choice (same data)</h3>
+          <table style="border:0">
+            <tr><th>Encoder</th><th class="n">AR</th><th class="n">ms</th></tr>
+            <tr><td>TF-IDF</td><td class="n">0.662</td><td class="n">1</td></tr>
+            <tr><td>MiniLM</td><td class="n">0.752</td><td class="n">30</td></tr>
+            <tr class="hl"><td>e5-small ✓</td><td class="n">0.733</td><td class="n">31</td></tr>
+            <tr><td>e5-base</td><td class="n">0.760</td><td class="n">113</td></tr>
+          </table>
+          <p class="note" style="margin:12px 0 0">Embeddings beat TF-IDF; the three encoders overlap in CI. e5-base: +0.03 for 3.6× latency.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 ERROR ANALYSIS -->
+  <section class="slide">
+    <div class="kicker">6 · Error analysis</div>
+    <h2>All 17 test errors, categorized</h2>
+    <div class="row">
+      <div class="col">
+        <table>
+          <tr><th>Cause</th><th class="n">#</th><th>Next step</th></tr>
+          <tr><td>Missing coverage</td><td class="n">7</td><td>Real Gulf tickets, typos</td></tr>
+          <tr><td>Ambiguous intents</td><td class="n">6</td><td>Merge or clarify labels</td></tr>
+          <tr><td>Label noise</td><td class="n">2</td><td>Review synthetic labels</td></tr>
+          <tr><td>Model error</td><td class="n">2</td><td>Stronger encoder</td></tr>
+        </table>
+        <p class="note" style="margin-top:12px">13 of 54 Arabic vs 4 of 1,080 English</p>
+      </div>
+      <div class="col">
+        <div class="card" style="margin-bottom:20px">
+          <p style="margin:0"><span class="ar" style="font-weight:600">انسحبت الفلوس مرتين…</span> → <span class="mono" style="font-size:22px">cancel_order</span><br><span class="note">Gulf verb unseen in training · confidence 0.20</span></p>
+        </div>
+        <div class="card teal" style="margin-bottom:20px"><p style="margin:0">All Arabic errors have confidence ≤ 0.51 → a higher τ sends them to a human.</p></div>
+        <div class="card coral"><p style="margin:0">2 English errors are <b>confident mistakes</b> (0.73, 0.78) — no threshold catches them.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 LIVE DEMO -->
+  <section class="slide">
+    <div class="kicker">7 · Live demo</div>
+    <h2>Try it: arabic-ticket-classifier-web.vercel.app</h2>
+    <div class="row">
+      <div class="col" style="flex:1.3">
+        <table>
+          <tr><th>Type this</th><th>Expect</th></tr>
+          <tr><td class="ar" style="text-align:right">متى يوصل طلبي؟ ابي رقم التتبع</td><td><span class="chip t">track_order</span></td></tr>
+          <tr><td class="ar" style="text-align:right">تجربة سيئة مرة، المنتج وصل مكسور</td><td><span class="chip c">complaint · urgent</span></td></tr>
+          <tr><td>I was charged twice for order A-55821, fix it now!</td><td><span class="chip t">payment_issue</span></td></tr>
+          <tr><td class="ar" style="text-align:right">انخصم المبلغ مرتين من بطاقتي عاجل!!</td><td><span class="chip a">wrong · 19%</span></td></tr>
+        </table>
+      </div>
+      <div class="col card navy">
+        <h3>How it runs</h3>
+        <p>The e5 encoder runs <b>in the browser</b> (Transformers.js); the trained classifier weights are a 27×384 matrix in <span class="mono">model.json</span>.</p>
+        <p style="margin-bottom:0">Browser embeddings verified identical to the Python notebook.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 REQUIREMENTS -->
+  <section class="slide">
+    <div class="kicker">Capstone requirements</div>
+    <h2>Checklist</h2>
+    <div class="row">
+      <div class="col card">
+        <ul class="check">
+          <li>End-to-end pipeline + working demo</li>
+          <li>Representation (e5 embeddings) + decision component (classifier)</li>
+          <li>Baseline + improvements on the <b>same</b> held-out test set</li>
+          <li>Evaluation by slice (EN · MSA · Gulf) with bootstrap CIs</li>
+          <li>Error analysis: 17 categorized failures (≥ 10 required)</li>
+          <li class="na">Fine-tuning — waived for this cohort; data was the bottleneck</li>
+        </ul>
+      </div>
+      <div class="col card teal">
+        <h3>Repository</h3>
+        <ul class="check">
+          <li>README with results, data & privacy, reproduce steps</li>
+          <li>Notebook with all outputs</li>
+          <li>Predictions, comparison & error CSVs</li>
+          <li>Demo code (web + Gradio)</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 LESSONS -->
+  <section class="slide">
+    <div class="kicker">8 · Lessons & next steps</div>
+    <h2>The bottleneck was data, not the model</h2>
+    <div class="row">
+      <div class="col card teal">
+        <h3>Lessons</h3>
+        <ul>
+          <li>Slice your metrics — the overall score hid the Arabic failure.</li>
+          <li>Same frozen encoder + Arabic data = ×3 on Arabic.</li>
+          <li>Check for leakage — and report it.</li>
+          <li>Abstaining beats guessing.</li>
+        </ul>
+      </div>
+      <div class="col card amber">
+        <h3>Next steps</h3>
+        <ul>
+          <li>Collect real Gulf-dialect tickets</li>
+          <li>Typo & dialect augmentation</li>
+          <li>Cascade: low-confidence → LLM → human</li>
+          <li>Fine-tune once real Arabic data exists</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 THANKS -->
+  <section class="slide">
+    <div style="margin-top:120px">
+      <div class="kicker">Thank you</div>
+      <h1>Questions?</h1>
+      <p class="ar" style="font-size:40px;color:var(--muted);text-align:left;margin-top:14px">شكرًا لكم</p>
+      <div class="links" style="margin-top:60px">
+        <p><span class="label" style="display:inline-block;width:150px">Demo</span><span class="mono">arabic-ticket-classifier-web.vercel.app</span></p>
+        <p><span class="label" style="display:inline-block;width:150px">Code</span><span class="mono">github.com/bandarMohammed/arabic-ticket-classifier</span></p>
+      </div>
+    </div>
+    <div class="title-band"></div>
+  </section>
+
+  <div class="foot">
+    <span class="track"><i></i>AI Engineering Track · Applied NLP Engineering</span>
+    <span id="num" style="position:absolute;left:50%;transform:translateX(-50%)"></span>
+  </div>
+  <div class="prog" id="prog"></div>
+</div></div>
+
+<div class="hud">
+  <button id="bPrev" aria-label="Previous">◀</button>
+  <button id="bNext" aria-label="Next">▶</button>
+  <button id="bFull">Fullscreen</button>
+</div>
+
+<script>
+(function(){
+  const stage=document.getElementById('stage');
+  const slides=[...document.querySelectorAll('.slide')];
+  let i=0;
+  try{const h=parseInt(location.hash.slice(1),10); if(h>=1&&h<=slides.length) i=h-1;}catch(e){}
+  function fit(){const s=Math.min(innerWidth/1600,innerHeight/900);stage.style.transform='scale('+s+')';}
+  function show(n){
+    i=Math.max(0,Math.min(slides.length-1,n));
+    slides.forEach((s,k)=>s.classList.toggle('on',k===i));
+    document.getElementById('num').textContent=(i+1)+' / '+slides.length;
+    document.getElementById('prog').style.width=((i+1)/slides.length*100)+'%';
+    try{history.replaceState(null,'','#'+(i+1));}catch(e){}
+  }
+  addEventListener('resize',fit); fit();
+  addEventListener('keydown',e=>{
+    if(['ArrowRight',' ','PageDown','Enter'].includes(e.key)){e.preventDefault();show(i+1);}
+    else if(['ArrowLeft','PageUp','Backspace'].includes(e.key)){e.preventDefault();show(i-1);}
+    else if(e.key==='Home') show(0); else if(e.key==='End') show(slides.length-1);
+    else if(e.key==='f'||e.key==='F') full();
+  });
+  addEventListener('hashchange',()=>{const h=parseInt(location.hash.slice(1),10); if(h-1!==i&&h>=1) show(h-1);});
+  function full(){if(!document.fullscreenElement){document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();}else{document.exitFullscreen&&document.exitFullscreen();}}
+  document.getElementById('bNext').onclick=()=>show(i+1);
+  document.getElementById('bPrev').onclick=()=>show(i-1);
+  document.getElementById('bFull').onclick=full;
+  stage.addEventListener('click',e=>{ if(e.target.closest('a,button')) return; const r=stage.getBoundingClientRect(); show(e.clientX>r.left+r.width/3?i+1:i-1); });
+  let x0=null;
+  addEventListener('touchstart',e=>{x0=e.touches[0].clientX},{passive:true});
+  addEventListener('touchend',e=>{if(x0==null)return;const d=e.changedTouches[0].clientX-x0;if(Math.abs(d)>50)show(d<0?i+1:i-1);x0=null;});
+  show(i);
+})();
+</script>
+</body>
+</html>
