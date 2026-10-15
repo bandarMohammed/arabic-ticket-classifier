@@ -2,6 +2,8 @@
 
 **Author:** Bandar · **Course:** SDAIA Academy — AI Engineering Track, Applied NLP Engineering · **Use case:** 1 — Intelligent Support Ticket Assistant (intent classification + routing)
 **Live demo:** [arabic-ticket-classifier-web.vercel.app](https://arabic-ticket-classifier-web.vercel.app/) · **Notebook:** [`notebooks/capstone_final.ipynb`](notebooks/capstone_final.ipynb)
+SDAIA Academy on GitHub: https://github.com/SDAIAAcademy
+Course page: https://sdaiaacademy.github.io/applied-nlp/
 
 ## Problem
 A support team receives customer messages in English, Modern Standard Arabic and Gulf dialect, and needs each one routed to the right queue. The course baseline works well on English but **fails on Arabic**: trained on English only, its confidence collapses on Arabic text and it abstains on most tickets.
